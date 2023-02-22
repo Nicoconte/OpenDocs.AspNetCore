@@ -19,6 +19,8 @@ namespace OpenDocs.AspNetCore
             string apiBaseUrl = string.Concat(context.Request.Scheme, "://", context.Request.Host);
             string swaggerUrl = string.Concat(apiBaseUrl, _config.SwaggerDocsUrl);
 
+            Console.WriteLine(swaggerUrl);
+
             var client = new HttpClient();
 
             var swaggerContentResponse = await (await client.GetAsync(swaggerUrl)).Content.ReadAsStringAsync();
@@ -34,9 +36,14 @@ namespace OpenDocs.AspNetCore
             });
 
             string syncDocsUrl = string.Concat(_config.Server, "/sync-docs");
-            await client.PostAsync(syncDocsUrl, new StringContent(openDocsRequest));
+            var syncResponse = await client.PostAsync(syncDocsUrl, new StringContent(openDocsRequest));
 
-            await _next(context);
+            Console.WriteLine(openDocsRequest);
+
+
+            await context.Response.WriteAsync(syncResponse.IsSuccessStatusCode ? "Document was sended successfully" : "Something goes wrong");
+
+            return;
         }
 
     }
