@@ -11,8 +11,7 @@ namespace OpenDocs.AspNetCore
         public string Server { get; set; }
         public string Environment { get; set; }
         public string ApplicationName { get; set; }
-        public string? ClientID { get; set; }
-        public string? ClientSecret { get; set; }
+        public string? AccessKey { get; set; }
         public string? SwaggerDocsUrl { get; set; } = "/swagger/v1/swagger.json";
         public string? GroupID { get; set; }
     }
