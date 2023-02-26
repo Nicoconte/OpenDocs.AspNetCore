@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
+using System.Xml.Linq;
 
 namespace OpenDocs.AspNetCore
 {
@@ -19,27 +22,26 @@ namespace OpenDocs.AspNetCore
             string apiBaseUrl = string.Concat(context.Request.Scheme, "://", context.Request.Host);
             string swaggerUrl = string.Concat(apiBaseUrl, _config.SwaggerDocsUrl);
 
-            Console.WriteLine(swaggerUrl);
-
             var client = new HttpClient();
 
             var swaggerContentResponse = await (await client.GetAsync(swaggerUrl)).Content.ReadAsStringAsync();
+            var swaggerFilePath = $"{Directory.GetCurrentDirectory()}/swagger.json";
 
-            var openDocsRequest = JsonConvert.SerializeObject(new OpenDocsSyncRequest()
-            {
-                SwaggerContent = swaggerContentResponse,
-                Environment = _config.Environment,
-                ClientID = _config.ClientID,
-                ClientSecret = _config.ClientSecret,
-                ApplicationName= _config.ApplicationName,
-                GroupID = _config.GroupID,
-            });
+            await File.WriteAllTextAsync(swaggerFilePath, swaggerContentResponse);
 
-            string syncDocsUrl = string.Concat(_config.Server, "/sync-docs");
-            var syncResponse = await client.PostAsync(syncDocsUrl, new StringContent(openDocsRequest));
+            var formData = new MultipartFormDataContent();
 
-            Console.WriteLine(openDocsRequest);
+            formData.Add(new StringContent(_config.Environment), nameof(_config.Environment));
+            formData.Add(new StringContent(_config.ApplicationName), nameof(_config.ApplicationName));
+            formData.Add(new StringContent(_config.AccessKey ?? string.Empty), nameof(_config.AccessKey));
+            formData.Add(new StringContent(_config.GroupID ?? string.Empty), nameof(_config.GroupID));
 
+            formData.Add(new ByteArrayContent(File.ReadAllBytes(swaggerFilePath)), "SwaggerFile", "swagger.json");
+
+            string syncDocsUrl = string.Concat(_config.Server, "/api/application/sync-docs");
+            var syncResponse = await client.PostAsync(syncDocsUrl, formData);
+
+            File.Delete(swaggerFilePath);
 
             await context.Response.WriteAsync(syncResponse.IsSuccessStatusCode ? "Document was sended successfully" : "Something goes wrong");
 

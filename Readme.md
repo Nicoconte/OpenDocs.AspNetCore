@@ -17,10 +17,9 @@ app.UseOpenDocs(app.Configuration);
 ```yml#
 OpenDocs:
     Server: http://yourserver.com
-    Environment: Development/Testing/Production
+    Environment: Development
     ApplicationName: YourApplicationName
-    ClientID: YourClientID
-    ClientSecret: YourClientSecret
+    AccessKey: EnvironmentAccessKey
     SwaggerDocsUrl: Default '/swagger/swagger.json'
     GroupID: YourApplicationGroup 
 ```
@@ -28,11 +27,10 @@ OpenDocs:
 ```json#
 OpenDocs: {
     "Server": "http://yourserver.com"
-    "Environment": "Development/Testing/Production"
+    "Environment": "Development"
     "ApplicationName": "YourApplicationName"
-    "ClientID": "YourClientID"
-    "ClientSecret": "YourClientSecret"
-    "SwaggerDocsUrl": "Default '/swagger/swagger.json'"
+    "AccessKey": "EnvironmentAccessKey"
+    "SwaggerDocsUrl": "Default '/swagger/v1/swagger.json'"
     "GroupID": "YourApplicationGroup"
 } 
 ```
